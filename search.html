@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings - Job Recruitment Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Job Listings</h1>
+    </header>
+    <main>
+    <div class="scrollable-container">
+        <form id="search-form">
+            <div class="form-group">
+                <label for="search">Search Jobs:</label>
+                <input type="text" id="search" name="search">
+            </div>
+            <button type="submit" class="btn">Search</button>
+        </form>
+        <div id="job-list" class="job-cards-container">
+            <!-- Dynamic job listings -->
+        </div>
+    </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Job Recruitment Platform</p>
+    </footer>
+    <script>
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            const searchQuery = document.getElementById('search').value;
+
+            fetch(`search_jobs.php?search=${encodeURIComponent(searchQuery)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(jobs => {
+                    const jobList = document.getElementById('job-list');
+                    jobList.innerHTML = ''; // Clear previous results
+
+                    if (jobs.length === 0) {
+                        jobList.innerHTML = '<p>No jobs found</p>';
+                    } else {
+                        jobs.forEach(job => {
+                            const card = document.createElement('div');
+                            card.classList.add('job-card');
+
+                            const title = document.createElement('h2');
+                            title.textContent = job.job_title;
+
+                            const description = document.createElement('p');
+                            description.textContent = job.job_description;
+
+                            const location = document.createElement('p');
+                            location.textContent = 'Location: ' + job.location;
+
+                            const salary = document.createElement('p');
+                            salary.textContent = 'Salary: ' + job.salary;
+
+                            card.appendChild(title);
+                            card.appendChild(description);
+                            card.appendChild(location);
+                            card.appendChild(salary);
+
+                            jobList.appendChild(card);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching jobs:', error));
+        });
+
+        // Optionally, load all jobs on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('get_jobs.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(jobs => {
+                    const jobList = document.getElementById('job-list');
+
+                    if (jobs.length === 0) {
+                        jobList.innerHTML = '<p>No jobs available</p>';
+                    } else {
+                        jobs.forEach(job => {
+                            const card = document.createElement('div');
+                            card.classList.add('job-card');
+
+                            const title = document.createElement('h2');
+                            title.textContent = job.job_title;
+
+                            const description = document.createElement('p');
+                            description.textContent = job.job_description;
+
+                            const location = document.createElement('p');
+                            location.textContent = 'Location: ' + job.location;
+
+                            const salary = document.createElement('p');
+                            salary.textContent = 'Salary: ' + job.salary;
+
+                            card.appendChild(title);
+                            card.appendChild(description);
+                            card.appendChild(location);
+                            card.appendChild(salary);
+
+                            jobList.appendChild(card);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching jobs:', error));
+        });
+    </script>
+</body>
+</html>

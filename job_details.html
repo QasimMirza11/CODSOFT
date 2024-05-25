@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Jobs - Job Recruitment Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>All Jobs</h1>
+    </header>
+    <main>
+        <div id="jobs-container" class="job-cards-container">
+            <!-- Job cards will be dynamically inserted here -->
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Job Recruitment Platform</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to handle applying for a job
+            const applyForJob = (jobId) => {
+                // Send a POST request to apply_job.php with the jobId
+                fetch('apply_job.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ job_id: jobId })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to apply for job');
+                    }
+                    alert('Application submitted successfully');
+                })
+                .catch(error => {
+                    console.error('Error applying for job:', error);
+                    alert('Error applying for job');
+                });
+            };
+
+            // Fetch all jobs from the server
+            fetch('get_posted_jobs.php')
+                .then(response => response.json())
+                .then(jobs => {
+                    const jobsContainer = document.getElementById('jobs-container');
+
+                    // Loop through each job and create a card for it
+                    jobs.forEach(job => {
+                        const card = document.createElement('div');
+                        card.classList.add('job-card');
+
+                        const title = document.createElement('h2');
+                        title.textContent = job.job_title;
+
+                        const description = document.createElement('p');
+                        description.textContent = job.job_description;
+
+                        const location = document.createElement('p');
+                        location.textContent = 'Location: ' + job.location;
+
+                        const salary = document.createElement('p');
+                        salary.textContent = 'Salary: ' + job.salary;
+
+                        const applyButton = document.createElement('button');
+                        applyButton.textContent = 'Apply';
+                        applyButton.classList.add('btn');
+                        applyButton.addEventListener('click', () => {
+                            applyForJob(job.id);
+                        });
+
+                        card.appendChild(title);
+                        card.appendChild(description);
+                        card.appendChild(location);
+                        card.appendChild(salary);
+                        card.appendChild(applyButton);
+
+                        jobsContainer.appendChild(card);
+                    });
+                })
+                .catch(error => console.error('Error fetching jobs:', error));
+        });
+    </script>
+</body>
+</html>
